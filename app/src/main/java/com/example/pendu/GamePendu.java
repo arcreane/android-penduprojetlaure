@@ -67,6 +67,7 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    //fonction au click du bouton pour propose une lettre
     @Override
     public void onClick(View v) {
 
@@ -96,7 +97,7 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
                 createAlerte(win);
                 //Toast.makeText(getApplicationContext(), "Perdu", Toast.LENGTH_SHORT).show();
             }
-            //appel de la fct afficher les lettres fause
+            //appel de la fct afficher les lettres
             showAlLetters(listOfLetters);
         }
 
