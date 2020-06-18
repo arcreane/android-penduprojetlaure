@@ -1,5 +1,6 @@
 package com.example.pendu;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,8 +11,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +33,7 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
     private int error;
     private List<Character> listOfLetters = new ArrayList<>();
     private boolean win;
+    private List<String> wordList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +49,15 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
         btn_send.setOnClickListener(this);
 
     }
-
+    //initialise le jeu pendu
     public void initGame() {
-        word = "ORDINATEUR";
+        word = generateWord();
         win = false;
         error = 0;
         found = 0;
         lettres_tapees.setText("");
         image.setBackgroundResource(R.drawable.first);
+        listOfLetters = new ArrayList<>();
 
         container.removeAllViews();
 
@@ -74,7 +81,8 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
             // le jeu pendu gagner
             if(found == word.length()){
                 win = true;
-                Toast.makeText(getApplicationContext(), "Victoire", Toast.LENGTH_SHORT).show();
+                createAlerte(win);
+                //Toast.makeText(getApplicationContext(), "Victoire", Toast.LENGTH_SHORT).show();
 
             }
             // lettre ne se trouve pas dans le mot
@@ -82,9 +90,11 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
                 error ++;
 
             }
+            setImage(error);
             if(error == 6){
                 win = false;
-                Toast.makeText(getApplicationContext(), "Perdu", Toast.LENGTH_SHORT).show();
+                createAlerte(win);
+                //Toast.makeText(getApplicationContext(), "Perdu", Toast.LENGTH_SHORT).show();
             }
             //appel de la fct afficher les lettres fause
             showAlLetters(listOfLetters);
@@ -93,6 +103,7 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
 
     }
 
+    //verifier si la lettre à déjà été tapées
     public boolean letterAlreadyUsed(char a, List<Character> listOfLetters) {
 
         for (int i = 0; i < listOfLetters.size(); i++) {
@@ -104,6 +115,7 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
         return false;
 
     }
+    //verifier si la lettre fait bien partie du mot a trouver
     public void checkIfLetterIsInWord(String letter, String word){
         for(int i = 0; i < word.length(); i++){
             if(letter.equals(String.valueOf(word.charAt(i)))){
@@ -114,15 +126,93 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
         }
     }
 
-    //afficher les lettres qui sont tapé ( et pas dans le mots )
+    //afficher les lettres qui sont tapé
     public void showAlLetters(List<Character> listOfLetters){
         String chaine = "";
         for(int i = 0; i < listOfLetters.size(); i++){
+
             chaine += listOfLetters.get(i) + "\n";
 
         }
         if(!chaine.equals("")){
             lettres_tapees.setText(chaine);
         }
+    }
+
+    //gerer les erreurs et changer l'image a changer erreur
+    public void setImage(int error){
+        switch (error){
+            case 1:
+                image.setBackgroundResource(R.drawable.second);
+                break;
+            case 2:
+                image.setBackgroundResource(R.drawable.third);
+                break;
+            case 3:
+                image.setBackgroundResource(R.drawable.fourth);
+                break;
+            case 4:
+                image.setBackgroundResource(R.drawable.fifth);
+                break;
+            case 5:
+                image.setBackgroundResource(R.drawable.sixth);
+                break;
+            case 6:
+                image.setBackgroundResource(R.drawable.seventh);
+                break;
+        }
+
+    }
+    //alert pour afficher victoire ou la defaite + bouton rejouer
+    public void createAlerte(boolean win) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if(win){
+            builder.setTitle("Bravo : vous avez gagner !");
+            builder.setMessage("Le mot que vous avez trouvez était : " + word);
+            builder.setPositiveButton(getResources().getString(R.string.rejouer), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    initGame();
+                }
+            });
+
+            builder.create().show();
+        }
+        if (!win) {
+            builder.setTitle("Vous avez perdu !");
+            builder.setMessage("Le mot à trouver était : " + word);
+            builder.setPositiveButton(getResources().getString(R.string.rejouer), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    initGame();
+                }
+            });
+
+            builder.create().show();
+        }
+    }
+
+    public List getListOfWord() {
+
+        try {
+         BufferedReader buffer = new BufferedReader(new InputStreamReader(getAssets().open("pendu_liste.txt")));
+         String line;
+         while ((line = buffer.readLine()) != null){
+             wordList.add(line);
+         }
+         buffer.close();
+        }catch(IOException e){
+           e.printStackTrace();
+        }
+
+        return wordList;
+    }
+
+    public String generateWord(){
+        wordList = getListOfWord();
+        int ramdom = (int) (Math.floor(Math.random() * wordList.size()));
+        String word = wordList.get(ramdom).trim();
+        return word;
     }
 }

@@ -3,4 +3,5 @@
     <string name="send">Envoyer</string>
     <string name="startgame">Start-Game</string>
     <string name="titlegame">"Game Pendu "</string>
+    <string name="rejouer">"Rejouer" </string>
 </resources>
