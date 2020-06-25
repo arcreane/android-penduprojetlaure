@@ -92,6 +92,7 @@ public class GamePendu extends AppCompatActivity implements View.OnClickListener
 
             }
             setImage(error);
+            //si 6 error renvoyer une alerte
             if(error == 6){
                 win = false;
                 createAlerte(win);
